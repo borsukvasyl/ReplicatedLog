@@ -1,0 +1,37 @@
+version: "3.0"
+
+services:
+  master:
+    image: "master"
+    build:
+      context: .
+      dockerfile: "dockerfiles/master/Dockerfile"
+    networks:
+      - "backend"
+    ports:
+      - "8000:8000"
+    environment:
+      SECONDARIES: "secondary1:secondary2"
+
+  secondary1:
+    image: "secondary"
+    build:
+      context: .
+      dockerfile: "dockerfiles/secondary/Dockerfile"
+    networks:
+      - "backend"
+    ports:
+      - "8001:8000"
+
+  secondary2:
+    image: "secondary"
+    networks:
+      - "backend"
+    ports:
+      - "8002:8000"
+    environment:
+      SLEEP: 10
+
+networks:
+  backend:
+    name: "backend"
