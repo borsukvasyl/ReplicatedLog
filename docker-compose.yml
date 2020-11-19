@@ -22,6 +22,8 @@ services:
       - "backend"
     ports:
       - "8001:8000"
+    environment:
+      SLEEP: 10
 
   secondary2:
     image: "secondary"

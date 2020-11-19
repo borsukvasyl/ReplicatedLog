@@ -10,8 +10,8 @@ data = []
 sleep = int(os.environ.get("SLEEP", 0))
 
 
-@router.get("/status", response_model=StatusModel)
-async def status():
+@router.get("/health", response_model=StatusModel)
+async def health():
     return StatusModel(status="OK")
 
 

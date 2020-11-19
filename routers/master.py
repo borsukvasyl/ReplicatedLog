@@ -1,7 +1,7 @@
 import os
 
-import requests
-from fastapi import APIRouter
+import grequests
+from fastapi import APIRouter, status
 
 from routers.common import StatusModel, GetDataOutModel, AppendDataInModel
 
@@ -10,8 +10,8 @@ data = []
 secondaries = [f"http://{hostname}:8000" for hostname in os.environ["SECONDARIES"].split(":")]
 
 
-@router.get("/status", response_model=StatusModel)
-async def status():
+@router.get("/health", response_model=StatusModel)
+async def health():
     return StatusModel(status="OK")
 
 
@@ -24,7 +24,8 @@ async def get():
 async def append(message: AppendDataInModel):
     data.append(message.message)
 
-    for hostname in secondaries:
-        response = requests.post(f"{hostname}/append", json=message.dict())
-        if response.status_code != 200:
-            raise ValueError(f"Cannot send [{data}] to secondary")
+    requests = [grequests.post(f"{hostname}/append", json=message.dict()) for hostname in secondaries]
+    responses = grequests.map(requests)
+    for response, hostname in zip(responses, secondaries):
+        if response is None or response.status_code != status.HTTP_200_OK:
+            raise ValueError(f"Failed to replicate on [{hostname}]")
