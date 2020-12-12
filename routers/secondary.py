@@ -1,5 +1,5 @@
 import os
-import time
+import asyncio
 
 from fastapi import APIRouter
 
@@ -22,5 +22,5 @@ async def get():
 
 @router.post("/append")
 async def append(message: AppendDataInModel):
-    time.sleep(sleep)
+    await asyncio.sleep(sleep)
     data.append(message.message)

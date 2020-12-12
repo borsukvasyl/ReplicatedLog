@@ -23,7 +23,7 @@ services:
     ports:
       - "8001:8000"
     environment:
-      SLEEP: 10
+      SLEEP: 5
 
   secondary2:
     image: "secondary"

@@ -13,3 +13,7 @@ class GetDataOutModel(BaseModel):
 
 class AppendDataInModel(BaseModel):
     message: Any
+
+
+class AppendDataMasterInModel(AppendDataInModel):
+    w: int = 1

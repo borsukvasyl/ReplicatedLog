@@ -1,8 +1,14 @@
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 from fire import Fire
 
 app = FastAPI()
+
+
+@app.exception_handler(Exception)
+async def validation_exception_handler(request, exc):
+    return PlainTextResponse(str(exc), status_code=400)
 
 
 def main(node: str):
