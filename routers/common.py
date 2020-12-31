@@ -22,9 +22,11 @@ class GetDataOutModel(BaseModel):
     messages: List[Any]
 
 
-class AppendDataInModel(BaseModel):
+class SecondaryAppendDataModel(BaseModel):
     message: Any
+    message_id: int
 
 
-class AppendDataMasterInModel(AppendDataInModel):
+class MasterAppendDataModel(BaseModel):
+    message: Any
     w: int = 1
