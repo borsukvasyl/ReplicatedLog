@@ -13,7 +13,7 @@ suspended = False
 
 @router.get("/health", response_model=SecondaryStatusModel)
 async def health():
-    status = NodeStatus.suspended if suspended else NodeStatus.suspended
+    status = NodeStatus.suspended if suspended else NodeStatus.healthy
     return SecondaryStatusModel(status=status)
 
 

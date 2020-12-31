@@ -15,18 +15,19 @@ class ReplicationCounter:
     def __init__(self, write_concern: int, num_nodes: int):
         self.success_counter = write_concern
         self.total_counter = num_nodes
+        self._lock = threading.Lock()
         self.future = asyncio.Future()
         if write_concern == 0:
             self.success()
 
     def count(self, success: bool):
-        # this operation is thread safe
-        self.total_counter -= 1
-        if success:
-            self.success_counter -= 1
+        with self._lock:
+            self.total_counter -= 1
+            if success:
+                self.success_counter -= 1
 
-        if self.success_counter == 0:
-            self.success()
+            if self.success_counter == 0:
+                self.success()
 
     def success(self):
         self.future.set_result(True)
