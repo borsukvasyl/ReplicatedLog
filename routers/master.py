@@ -5,17 +5,16 @@ from fastapi import APIRouter
 
 from routers.common import MasterStatusModel, GetDataOutModel, AppendDataMasterInModel
 from routers.replication import replicate, check_health
+from routers.requests import secondary2url
 
 router = APIRouter()
 data = []
 secondaries = os.environ["SECONDARIES"].split(":")
-secondary_urls = [f"http://{hostname}:8000" for hostname in secondaries]
 
 
 @router.get("/health", response_model=MasterStatusModel)
 async def health():
-    urls = [f"{secondary}/health" for secondary in secondary_urls]
-    statuses = await check_health(urls)
+    statuses = await check_health(secondaries)
     statuses = {node: status for node, status in zip(secondaries, statuses)}
     return MasterStatusModel(statuses=statuses)
 
@@ -29,7 +28,7 @@ async def get():
 async def append(message: AppendDataMasterInModel):
     data.append(message.message)
 
-    urls = [f"{hostname}/append" for hostname in secondary_urls]
+    urls = [f"{secondary2url(hostname)}/append" for hostname in secondaries]
     json = message.dict(exclude={"w"})
     write_concern = message.w - 1
 

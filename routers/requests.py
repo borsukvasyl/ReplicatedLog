@@ -3,6 +3,10 @@ import asyncio
 import aiohttp
 
 
+def secondary2url(hostname: str):
+    return f"http://{hostname}:8000"
+
+
 async def gather_get(urls: [str]):
     async with aiohttp.ClientSession() as session:
         loop = asyncio.get_event_loop()
