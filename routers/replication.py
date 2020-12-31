@@ -44,12 +44,14 @@ class ReplicationTaskDescriptor:
 
 
 class Replicator:
-    def __init__(self, nodes: List[str]):
+    def __init__(self, nodes: List[str], time_interval: int = 4):
         self.nodes = nodes
         self.messages = []
         self.message_id = 0
 
         self.queues, self.threads = self._create_background_replicators(nodes)
+        self.healths = {}
+        self.healths_thread = self._create_background_health(nodes, time_interval)
 
     def replicate(self, message: Any, write_concert: int):
         self.messages.append(message)
@@ -86,9 +88,22 @@ class Replicator:
                 queue.put((priority, descriptor))
                 time.sleep(5)
 
+    def _create_background_health(self, nodes: List[str], time_interval: int):
+        t = threading.Thread(target=self._background_health, args=(nodes, time_interval))
+        t.start()
+        return t
 
-async def check_health(hosts: List[str]):
-    urls = [f"{secondary2url(host)}/health" for host in hosts]
+    def _background_health(self, nodes: List[str], time_interval: int):
+        loop = asyncio.new_event_loop()
+        while True:
+            statuses = loop.run_until_complete(check_health(nodes))
+            healths = {node: status for node, status in zip(nodes, statuses)}
+            self.healths = healths
+            time.sleep(time_interval)
+
+
+async def check_health(nodes: List[str]):
+    urls = [f"{secondary2url(node)}/health" for node in nodes]
     responses = await gather_get(urls)
     statuses = [NodeStatus.unhealthy if response is None else NodeStatus(response["status"]) for response in responses]
     return statuses
