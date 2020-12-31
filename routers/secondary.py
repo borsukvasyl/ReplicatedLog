@@ -40,5 +40,11 @@ async def get():
 async def append(message: SecondaryAppendDataModel):
     if suspended:
         raise ValueError("Node is suspended")
+    if message.message_id > len(data):
+        raise ValueError(f"Message id [{message.message_id}] is larger than current acceptable id [{len(data)}]")
+
     await asyncio.sleep(sleep)
+    if message.message_id < len(data):
+        # message was already added
+        return
     data.append(message.message)
