@@ -3,16 +3,16 @@ import asyncio
 
 from fastapi import APIRouter
 
-from routers.common import StatusModel, GetDataOutModel, AppendDataInModel
+from routers.common import NodeStatus, SecondaryStatusModel, GetDataOutModel, AppendDataInModel
 
 router = APIRouter()
 data = []
 sleep = int(os.environ.get("SLEEP", 0))
 
 
-@router.get("/health", response_model=StatusModel)
+@router.get("/health", response_model=SecondaryStatusModel)
 async def health():
-    return StatusModel(status="OK")
+    return SecondaryStatusModel(status=NodeStatus.healthy)
 
 
 @router.get("/get", response_model=GetDataOutModel)
